@@ -1,1 +1,41 @@
-# TODO: Add golangci-lint configuration.
+version: "2"
+
+linters:
+  enable:
+    - errcheck
+    - govet
+    - ineffassign
+    - staticcheck
+    - unused
+    - revive
+    - misspell
+    - godot
+    - prealloc
+    - exhaustive
+    - noctx
+    - bodyclose
+    - contextcheck
+  settings:
+    revive:
+      rules:
+        - name: exported
+        - name: var-naming
+  exclusions:
+    rules:
+      - path: _test\.go
+        linters:
+          - errcheck
+          - revive
+      - path: internal/metrics/metrics\.go
+        linters:
+          - revive
+        text: "avoid package names that conflict with Go standard library package names"
+
+formatters:
+  enable:
+    - gofmt
+    - goimports
+  settings:
+    goimports:
+      local-prefixes:
+        - github.com/Sneypsleep90/trending-top
