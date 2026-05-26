@@ -9,14 +9,12 @@ import (
 	"github.com/jackc/pgx/v5"
 )
 
-// PgStopList stores stop-list entries in Postgres and serves reads from cache.
 type PgStopList struct {
 	db    *pgx.Conn
 	cache sync.Map
 	mu    sync.Mutex
 }
 
-// NewPgStopList connects to Postgres and loads stop-list rows into memory.
 func NewPgStopList(ctx context.Context, dsn string) (*PgStopList, error) {
 	db, err := pgx.Connect(ctx, dsn)
 	if err != nil {
@@ -36,7 +34,6 @@ func NewPgStopList(ctx context.Context, dsn string) (*PgStopList, error) {
 	return stopList, nil
 }
 
-// Add inserts query into Postgres and updates the in-memory cache.
 func (s *PgStopList) Add(ctx context.Context, query string) error {
 	query = NormalizeQuery(query)
 	if query == "" {
@@ -56,7 +53,6 @@ func (s *PgStopList) Add(ctx context.Context, query string) error {
 	return nil
 }
 
-// Remove deletes query from Postgres and updates the in-memory cache.
 func (s *PgStopList) Remove(ctx context.Context, query string) error {
 	query = NormalizeQuery(query)
 	if query == "" {
@@ -76,7 +72,6 @@ func (s *PgStopList) Remove(ctx context.Context, query string) error {
 	return nil
 }
 
-// Contains reports whether query is present in the in-memory cache.
 func (s *PgStopList) Contains(ctx context.Context, query string) (bool, error) {
 	if err := ctx.Err(); err != nil {
 		return false, fmt.Errorf("pg_stoplist.Contains: %w", err)
@@ -92,7 +87,6 @@ func (s *PgStopList) Contains(ctx context.Context, query string) (bool, error) {
 	return ok, nil
 }
 
-// List returns all cached stop-list queries sorted lexicographically.
 func (s *PgStopList) List(ctx context.Context) ([]string, error) {
 	if err := ctx.Err(); err != nil {
 		return nil, fmt.Errorf("pg_stoplist.List: %w", err)
@@ -108,7 +102,6 @@ func (s *PgStopList) List(ctx context.Context) ([]string, error) {
 	return items, nil
 }
 
-// Close closes the Postgres connection.
 func (s *PgStopList) Close(ctx context.Context) error {
 	if err := s.db.Close(ctx); err != nil {
 		return fmt.Errorf("pg_stoplist.Close: %w", err)

@@ -18,7 +18,6 @@ linters:
   settings:
     revive:
       rules:
-        - name: exported
         - name: var-naming
   exclusions:
     rules:

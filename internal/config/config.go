@@ -26,7 +26,6 @@ const (
 	defaultLogLevel          = "info"
 )
 
-// Config contains all runtime settings loaded from environment variables.
 type Config struct {
 	KafkaBrokers      string
 	KafkaTopic        string
@@ -45,7 +44,6 @@ type Config struct {
 	LogLevel          string
 }
 
-// Load reads configuration from environment variables and applies defaults.
 func Load() (Config, error) {
 	cfg := Config{
 		KafkaBrokers:      getString("KAFKA_BROKERS", defaultKafkaBrokers),
@@ -72,7 +70,6 @@ func Load() (Config, error) {
 	return cfg, nil
 }
 
-// Validate checks that configuration values are usable.
 func (c Config) Validate() error {
 	if strings.TrimSpace(c.KafkaBrokers) == "" {
 		return fmt.Errorf("KAFKA_BROKERS must not be empty")
@@ -111,7 +108,6 @@ func (c Config) Validate() error {
 	return nil
 }
 
-// KafkaBrokerList returns Kafka bootstrap servers as a string slice.
 func (c Config) KafkaBrokerList() []string {
 	parts := strings.Split(c.KafkaBrokers, ",")
 	brokers := make([]string, 0, len(parts))
@@ -125,32 +121,26 @@ func (c Config) KafkaBrokerList() []string {
 	return brokers
 }
 
-// HTTPAddr returns the HTTP listen address.
 func (c Config) HTTPAddr() string {
 	return fmt.Sprintf(":%d", c.HTTPPort)
 }
 
-// BucketDuration returns one bucket duration.
 func (c Config) BucketDuration() time.Duration {
 	return time.Duration(c.BucketDurationSec) * time.Second
 }
 
-// WindowDuration returns the full sliding window duration.
 func (c Config) WindowDuration() time.Duration {
 	return time.Duration(c.BucketCount*c.BucketDurationSec) * time.Second
 }
 
-// WindowSeconds returns the full sliding window length in seconds.
 func (c Config) WindowSeconds() int {
 	return c.BucketCount * c.BucketDurationSec
 }
 
-// TopCacheTTL returns the top cache rebuild interval.
 func (c Config) TopCacheTTL() time.Duration {
 	return time.Duration(c.TopCacheTTLMS) * time.Millisecond
 }
 
-// FraudWindow returns the fraud detector window duration.
 func (c Config) FraudWindow() time.Duration {
 	return time.Duration(c.FraudWindowSec) * time.Second
 }

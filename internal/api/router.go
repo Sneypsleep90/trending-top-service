@@ -1,4 +1,4 @@
-package api
+package httpapi
 
 import (
 	"log/slog"
@@ -10,11 +10,9 @@ import (
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
-// NewRouter builds the HTTP router for the service.
 func NewRouter(handler *Handler, logger *slog.Logger, gatherer prometheus.Gatherer) http.Handler {
 	r := chi.NewRouter()
 	r.Use(chimiddleware.RequestID)
-	r.Use(chimiddleware.RealIP)
 	r.Use(LoggingMiddleware(logger))
 	r.Use(chimiddleware.Recoverer)
 

@@ -14,14 +14,12 @@ type bucket struct {
 	counts map[string]int32
 }
 
-// BucketWheel stores counters in a fixed-size sliding window of time buckets.
 type BucketWheel struct {
 	buckets        []bucket
 	bucketDuration time.Duration
 	current        atomic.Uint64
 }
 
-// NewBucketWheel creates a bucket wheel with bucketCount buckets.
 func NewBucketWheel(bucketCount int, bucketDuration time.Duration) (*BucketWheel, error) {
 	if bucketCount <= 0 {
 		return nil, fmt.Errorf("bucket count must be positive")
@@ -41,7 +39,6 @@ func NewBucketWheel(bucketCount int, bucketDuration time.Duration) (*BucketWheel
 	}, nil
 }
 
-// Add increments the current bucket counter for query.
 func (w *BucketWheel) Add(query string) {
 	query = strings.TrimSpace(strings.ToLower(query))
 	if query == "" {
@@ -56,7 +53,6 @@ func (w *BucketWheel) Add(query string) {
 	b.mu.Unlock()
 }
 
-// Counts returns a snapshot with counters summed across all buckets.
 func (w *BucketWheel) Counts() map[string]int {
 	result := make(map[string]int)
 	for i := range w.buckets {
@@ -72,7 +68,6 @@ func (w *BucketWheel) Counts() map[string]int {
 	return result
 }
 
-// Rotate moves the current pointer to the next bucket and clears it.
 func (w *BucketWheel) Rotate() {
 	next := (w.current.Load() + 1) % uint64(len(w.buckets))
 	b := &w.buckets[next]
@@ -84,7 +79,6 @@ func (w *BucketWheel) Rotate() {
 	w.current.Store(next)
 }
 
-// StartCleaner rotates buckets on every bucket duration until ctx is canceled.
 func (w *BucketWheel) StartCleaner(ctx context.Context) {
 	ticker := time.NewTicker(w.bucketDuration)
 	defer ticker.Stop()
@@ -99,7 +93,6 @@ func (w *BucketWheel) StartCleaner(ctx context.Context) {
 	}
 }
 
-// WindowDuration returns the total wheel window duration.
 func (w *BucketWheel) WindowDuration() time.Duration {
 	return time.Duration(len(w.buckets)) * w.bucketDuration
 }

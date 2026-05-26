@@ -7,7 +7,6 @@ import (
 	"github.com/prometheus/client_golang/prometheus/promauto"
 )
 
-// Metrics owns all Prometheus collectors used by the service.
 type Metrics struct {
 	registry *prometheus.Registry
 
@@ -20,7 +19,6 @@ type Metrics struct {
 	storeUniqueQueries prometheus.Gauge
 }
 
-// New creates metrics registered in the provided registry.
 func New(registry *prometheus.Registry) *Metrics {
 	if registry == nil {
 		registry = prometheus.NewRegistry()
@@ -62,7 +60,6 @@ func New(registry *prometheus.Registry) *Metrics {
 	}
 }
 
-// Registry returns the registry with all service collectors.
 func (m *Metrics) Registry() *prometheus.Registry {
 	if m == nil {
 		return prometheus.NewRegistry()
@@ -71,49 +68,42 @@ func (m *Metrics) Registry() *prometheus.Registry {
 	return m.registry
 }
 
-// IncEventsConsumed increments the consumed Kafka events counter.
 func (m *Metrics) IncEventsConsumed() {
 	if m != nil {
 		m.eventsConsumed.Inc()
 	}
 }
 
-// IncFraudDropped increments the fraud dropped events counter.
 func (m *Metrics) IncFraudDropped() {
 	if m != nil {
 		m.fraudDropped.Inc()
 	}
 }
 
-// IncStoplistDropped increments the stop-list dropped events counter.
 func (m *Metrics) IncStoplistDropped() {
 	if m != nil {
 		m.stoplistDropped.Inc()
 	}
 }
 
-// IncKafkaErrors increments the Kafka errors counter.
 func (m *Metrics) IncKafkaErrors() {
 	if m != nil {
 		m.kafkaErrors.Inc()
 	}
 }
 
-// IncStoreWrites increments the store writes counter.
 func (m *Metrics) IncStoreWrites() {
 	if m != nil {
 		m.storeWrites.Inc()
 	}
 }
 
-// ObserveTopRequest records top endpoint latency.
 func (m *Metrics) ObserveTopRequest(duration time.Duration) {
 	if m != nil {
 		m.topRequestDuration.Observe(duration.Seconds())
 	}
 }
 
-// SetStoreUniqueQueries sets the unique query gauge.
 func (m *Metrics) SetStoreUniqueQueries(count int) {
 	if m != nil {
 		m.storeUniqueQueries.Set(float64(count))

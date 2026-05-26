@@ -14,7 +14,6 @@ type cachedResult struct {
 	GeneratedAt time.Time
 }
 
-// TopCache stores a periodically rebuilt top list in an atomic value.
 type TopCache struct {
 	wheel     *BucketWheel
 	ttl       time.Duration
@@ -23,7 +22,6 @@ type TopCache struct {
 	value     atomic.Value
 }
 
-// NewTopCache creates a cache for the provided bucket wheel.
 func NewTopCache(wheel *BucketWheel, ttl time.Duration, limit int, onRebuild func(uniqueQueries int)) *TopCache {
 	if limit <= 0 {
 		limit = defaultTopLimit
@@ -46,7 +44,6 @@ func NewTopCache(wheel *BucketWheel, ttl time.Duration, limit int, onRebuild fun
 	return cache
 }
 
-// Run rebuilds the cache periodically until ctx is canceled.
 func (c *TopCache) Run(ctxDone <-chan struct{}) {
 	c.Rebuild()
 
@@ -63,7 +60,6 @@ func (c *TopCache) Run(ctxDone <-chan struct{}) {
 	}
 }
 
-// Rebuild recomputes the top list from the bucket wheel.
 func (c *TopCache) Rebuild() {
 	counts := c.wheel.Counts()
 	items := topN(counts, c.limit)
@@ -77,7 +73,6 @@ func (c *TopCache) Rebuild() {
 	})
 }
 
-// Top returns up to n cached items without recomputing counters.
 func (c *TopCache) Top(n int) ([]TopItem, time.Time) {
 	raw := c.value.Load()
 	if raw == nil {

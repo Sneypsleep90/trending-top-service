@@ -1,4 +1,4 @@
-package api
+package httpapi
 
 import (
 	"encoding/json"
@@ -24,7 +24,6 @@ const (
 	maxStopQueryRunes = 100
 )
 
-// Handler contains all HTTP dependencies.
 type Handler struct {
 	store         store.Store
 	stopList      stoplist.StopList
@@ -33,7 +32,6 @@ type Handler struct {
 	windowSeconds int
 }
 
-// NewHandler creates an HTTP handler set.
 func NewHandler(
 	st store.Store,
 	stopList stoplist.StopList,
@@ -50,7 +48,6 @@ func NewHandler(
 	}
 }
 
-// GetTop returns the current trending top.
 func (h *Handler) GetTop(w http.ResponseWriter, r *http.Request) {
 	startedAt := time.Now()
 	defer func() {
@@ -96,7 +93,6 @@ func (h *Handler) GetTop(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-// AddStopWord adds a query to the stop list.
 func (h *Handler) AddStopWord(w http.ResponseWriter, r *http.Request) {
 	var request stopWordRequest
 	decoder := json.NewDecoder(r.Body)
@@ -121,7 +117,6 @@ func (h *Handler) AddStopWord(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusNoContent)
 }
 
-// RemoveStopWord removes a query from the stop list.
 func (h *Handler) RemoveStopWord(w http.ResponseWriter, r *http.Request) {
 	query, err := validateStopQuery(chi.URLParam(r, "query"))
 	if err != nil {
@@ -138,7 +133,6 @@ func (h *Handler) RemoveStopWord(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusNoContent)
 }
 
-// ListStopWords returns all stop-list queries.
 func (h *Handler) ListStopWords(w http.ResponseWriter, r *http.Request) {
 	items, err := h.stopList.List(r.Context())
 	if err != nil {
@@ -153,7 +147,6 @@ func (h *Handler) ListStopWords(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, http.StatusOK, stopListResponse{Items: items})
 }
 
-// Healthz reports service health.
 func (h *Handler) Healthz(w http.ResponseWriter, _ *http.Request) {
 	writeJSON(w, http.StatusOK, healthResponse{Status: "ok"})
 }

@@ -13,14 +13,12 @@ type sessionEntry struct {
 	expiresAt time.Time
 }
 
-// FraudDetector rate-limits identical queries from one session inside a time window.
 type FraudDetector struct {
 	sessions sync.Map
 	maxCount int
 	window   time.Duration
 }
 
-// NewFraudDetector creates a fraud detector.
 func NewFraudDetector(maxCount int, window time.Duration) *FraudDetector {
 	if maxCount <= 0 {
 		maxCount = 50
@@ -35,7 +33,6 @@ func NewFraudDetector(maxCount int, window time.Duration) *FraudDetector {
 	}
 }
 
-// IsFraud increments a session/query counter and reports whether it exceeds the limit.
 func (d *FraudDetector) IsFraud(sessionID string, query string) bool {
 	sessionID = stringsTrim(sessionID)
 	query = NormalizeQuery(query)
@@ -63,7 +60,6 @@ func (d *FraudDetector) IsFraud(sessionID string, query string) bool {
 	return entry.counts[query] > d.maxCount
 }
 
-// Run removes expired session entries until ctx is canceled.
 func (d *FraudDetector) Run(ctx context.Context) {
 	ticker := time.NewTicker(time.Minute)
 	defer ticker.Stop()

@@ -1,4 +1,4 @@
-package api
+package httpapi
 
 import (
 	"log/slog"
@@ -8,7 +8,6 @@ import (
 	"github.com/go-chi/chi/v5/middleware"
 )
 
-// LoggingMiddleware logs request method, path, status, duration, and request id.
 func LoggingMiddleware(logger *slog.Logger) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {

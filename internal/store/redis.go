@@ -17,7 +17,6 @@ import (
 
 const redisTopCacheKey = "trending:top_cache"
 
-// RedisStore implements Store with Redis hashes for buckets and a JSON top cache.
 type RedisStore struct {
 	rdb            *redis.Client
 	bucketCount    int
@@ -28,7 +27,6 @@ type RedisStore struct {
 	rebuildMu      sync.Mutex
 }
 
-// NewRedisStore creates a Redis-backed store.
 func NewRedisStore(cfg config.Config, metricSet *metrics.Metrics) *RedisStore {
 	rdb := redis.NewClient(&redis.Options{
 		Addr:     cfg.RedisAddr,
@@ -46,7 +44,6 @@ func NewRedisStore(cfg config.Config, metricSet *metrics.Metrics) *RedisStore {
 	}
 }
 
-// Ping checks Redis connectivity.
 func (s *RedisStore) Ping(ctx context.Context) error {
 	if err := s.rdb.Ping(ctx).Err(); err != nil {
 		return fmt.Errorf("redis_store.Ping: %w", err)
@@ -55,7 +52,6 @@ func (s *RedisStore) Ping(ctx context.Context) error {
 	return nil
 }
 
-// Add increments the Redis hash counter for the current time slot.
 func (s *RedisStore) Add(ctx context.Context, query string) error {
 	query = strings.TrimSpace(strings.ToLower(query))
 	if query == "" {
@@ -77,7 +73,6 @@ func (s *RedisStore) Add(ctx context.Context, query string) error {
 	return nil
 }
 
-// Top returns cached top items or lazily rebuilds the Redis cache.
 func (s *RedisStore) Top(ctx context.Context, n int) ([]TopItem, time.Time, error) {
 	if items, ok, err := s.getCachedTop(ctx); err != nil {
 		return nil, time.Time{}, fmt.Errorf("redis_store.Top: %w", err)
@@ -102,12 +97,10 @@ func (s *RedisStore) Top(ctx context.Context, n int) ([]TopItem, time.Time, erro
 	return limitTop(items, n), generatedAt, nil
 }
 
-// Run waits for cancellation; Redis top rebuilds are lazy on reads.
 func (s *RedisStore) Run(ctx context.Context) {
 	<-ctx.Done()
 }
 
-// Close closes the Redis client.
 func (s *RedisStore) Close() error {
 	if err := s.rdb.Close(); err != nil {
 		return fmt.Errorf("redis_store.Close: %w", err)

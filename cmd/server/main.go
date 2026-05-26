@@ -15,7 +15,7 @@ import (
 
 	"github.com/prometheus/client_golang/prometheus"
 
-	"github.com/Sneypsleep90/trending-top/internal/api"
+	httpapi "github.com/Sneypsleep90/trending-top/internal/api"
 	"github.com/Sneypsleep90/trending-top/internal/config"
 	"github.com/Sneypsleep90/trending-top/internal/consumer"
 	"github.com/Sneypsleep90/trending-top/internal/metrics"
@@ -61,8 +61,8 @@ func run() error {
 		return fmt.Errorf("main.run: %w", err)
 	}
 
-	handler := api.NewHandler(trendingStore, stopList, metricSet, logger, cfg.WindowSeconds())
-	router := api.NewRouter(handler, logger, metricSet.Registry())
+	handler := httpapi.NewHandler(trendingStore, stopList, metricSet, logger, cfg.WindowSeconds())
+	router := httpapi.NewRouter(handler, logger, metricSet.Registry())
 	server := &http.Server{
 		Addr:         cfg.HTTPAddr(),
 		Handler:      router,

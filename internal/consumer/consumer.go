@@ -14,7 +14,6 @@ import (
 	"github.com/Sneypsleep90/trending-top/internal/store"
 )
 
-// Consumer reads Kafka search events and writes accepted queries to the store.
 type Consumer struct {
 	group   sarama.ConsumerGroup
 	topic   string
@@ -24,7 +23,6 @@ type Consumer struct {
 	logger  *slog.Logger
 }
 
-// NewConsumer creates a Sarama consumer group.
 func NewConsumer(
 	cfg config.Config,
 	st store.Store,
@@ -57,7 +55,6 @@ func NewConsumer(
 	}, nil
 }
 
-// Run consumes the configured topic until ctx is canceled.
 func (c *Consumer) Run(ctx context.Context) {
 	defer func() {
 		if err := c.group.Close(); err != nil {
@@ -90,7 +87,6 @@ func (c *Consumer) Run(ctx context.Context) {
 	}
 }
 
-// Close closes the underlying consumer group.
 func (c *Consumer) Close() error {
 	if err := c.group.Close(); err != nil {
 		return fmt.Errorf("consumer.Close: %w", err)
@@ -176,30 +172,4 @@ func (h *consumerGroupHandler) handleMessage(session sarama.ConsumerGroupSession
 
 	h.consumer.metrics.IncEventsConsumed()
 	session.MarkMessage(message, "")
-}
-
-// EventSource exposes a stream of already decoded search events.
-type EventSource interface {
-	Events() <-chan SearchEvent
-}
-
-// MockSource is an EventSource implementation backed by a slice.
-type MockSource struct {
-	events chan SearchEvent
-}
-
-// NewMockSource creates a source that emits the provided events once.
-func NewMockSource(events []SearchEvent) *MockSource {
-	ch := make(chan SearchEvent, len(events))
-	for _, event := range events {
-		ch <- event
-	}
-	close(ch)
-
-	return &MockSource{events: ch}
-}
-
-// Events returns the mock event channel.
-func (s *MockSource) Events() <-chan SearchEvent {
-	return s.events
 }
